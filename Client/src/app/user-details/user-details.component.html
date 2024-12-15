@@ -1,0 +1,176 @@
+<div class="container-fluid">
+  <div class="col bg-light border border-1 rounded" *ngIf="isTeamLoggedIn">
+    <h4 class="m-3" style="text-align: center; margin: 5px;">Team Profile</h4>
+  </div>
+  <div class="col bg-light border border-1 rounded" *ngIf="isPlayerLoggedIn">
+    <h4 class="m-3" style="text-align: center; margin: 5px;">Player Profile</h4>
+  </div>
+</div>
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-md-4">
+      <div class="col mt-4 mb-4 bg-light border border-1 ml-auto" style="border-radius: 0.25rem; position: relative;" *ngIf="isTeamLoggedIn && players.length > 0">
+        <div class="row">
+          <div class="col text-center m-4">
+            <h4 style="text-align: left;">Team Players:</h4>
+            <hr>
+            <div class="position-relative d-inline-block profile-container" *ngFor="let player of players">
+              <div class="d-flex align-items-start">
+                <div style="margin-right: 10px;">
+                  <a [routerLink]="['/other-users', player.email]">
+                    <img [src]="profileImg" alt="User Photo" class="rounded-circle" style="width: 45px; height: 45px">
+                  </a>
+                </div>
+                <div style="margin-right: 30px;">
+                  <p style="text-align: left;">
+                    <a style="color: black;" [routerLink]="['/other-users', player.email]">{{ player.name }}</a> <br>
+                    <a style="color: black;" [routerLink]="['/other-users', player.email]">{{ player.email }}</a>
+                  </p>
+                </div>
+                <div style="margin-right: 3px;">
+                  <button class="btn btn-danger" (click)="removePlayer(player.email)">
+                    <i class="fa-solid fa-user-minus"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>    
+    <div class="col-md-4 col-12">
+      <!-- Player details -->
+      <div class="col mt-4 mb-4 bg-light border border-1 rounded" *ngIf="isPlayerLoggedIn">
+        <div class="row">
+          <div class="col text-center m-4">
+            <div class="position-relative d-inline-block">
+              <img [src]="profileImg" class="img-fluid rounded-circle profile-img">
+              <button class="btn" style="position: absolute; bottom: 0; right: 0; transform: translate(50%, 50%);" (click)="openFileInput()">
+                <i class="fa-solid fa-circle-plus fa-2xl text-primary"></i>
+              </button>
+            </div>
+            <input type="file" #fileInput class="d-none" (change)="onFileSelected($event)">
+            <p class="strong">{{ (currentUserP$ | async)?.name }}</p>
+          </div>
+          <div class="col m-4">
+            <p class="strong">Date of Birth: {{ (currentUserP$ | async)?.dateOfBirth | date: 'dd-MM-yyyy' }}</p>
+            <p class="strong">Address: {{ (currentUserP$ | async)?.address }}</p>
+            <p class="strong">Phone Number: {{ (currentUserP$ | async)?.phoneNumber }}</p>
+            <p class="strong">Email: {{ (currentUserP$ | async)?.email }}</p>
+            <p class="strong">Preferred Position: {{ (currentUserP$ | async)?.preferredPosition }}</p>
+          </div>
+        </div>
+      </div>
+      <!-- Team details -->
+      <div class="col mt-4 mb-4 bg-light border border-1 rounded" *ngIf="isTeamLoggedIn">
+        <div class="row">
+          <div class="col text-center m-4">
+            <div class="position-relative d-inline-block profile-container">
+              <img [src]="profileImg" class="img-fluid rounded-circle profile-img">
+              <button class="btn" style="position: absolute; bottom: 0; right: 0; transform: translate(50%, 50%);" (click)="openFileInput()">
+                <i class="fa-solid fa-circle-plus fa-2xl text-primary"></i>
+              </button>
+            </div>
+            <input type="file" #fileInput class="d-none" (change)="onFileSelected($event)">
+            <p class="strong">{{ (currentUserT$ | async)?.managerName }}</p>
+          </div>
+          <div class="col m-4">
+            <p class="strong">Address: {{ (currentUserT$ | async)?.address }}</p>
+            <p class="strong">Phone Number: {{ (currentUserT$ | async)?.phoneNumber }}</p>
+            <p class="strong">Email: {{ (currentUserT$ | async)?.email }}</p>
+            <div class="btn-group">
+              <button class="btn btn-primary dropdown-toggle" type="button" id="positionDropdownButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                Position
+              </button>
+              <div class="dropdown-menu" aria-labelledby="positionDropdownButton">
+                <div class="form-check dropdown-item">
+                  <input type="checkbox" class="form-check-input" id="chkStriker" [checked]="isPositionSelected('Striker')" (change)="onPositionChange('Striker')" />
+                  <label class="form-check-label" for="chkStriker">Striker</label>
+                </div>
+                <div class="form-check dropdown-item">
+                  <input type="checkbox" class="form-check-input" id="chkMidfielder" [checked]="isPositionSelected('Midfielder')" (change)="onPositionChange('Midfielder')" />
+                  <label class="form-check-label" for="chkMidfielder">Midfielder</label>
+                </div>
+                <div class="form-check dropdown-item">
+                  <input type="checkbox" class="form-check-input" id="chkDefence" [checked]="isPositionSelected('Defence')" (change)="onPositionChange('Defence')" />
+                  <label class="form-check-label" for="chkDefence">Defence</label>
+                </div>
+                <div class="form-check dropdown-item">
+                  <input type="checkbox" class="form-check-input" id="chkGoalkeeper" [checked]="isPositionSelected('Goalkeeper')" (change)="onPositionChange('Goalkeeper')" />
+                  <label class="form-check-label" for="chkGoalkeeper">Goalkeeper</label>
+                </div>
+              </div>
+            </div>            
+          </div>
+        </div>
+        <div class="row">
+          <div class="col">
+            <div class="message m-3">
+              <button class="btn btn-primary" readonly data-toggle="modal" data-target="#descriptionModal"><i class="fa-solid fa-pen"></i></button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Dedcribtion -->
+      <div class="col mt-4 mb-4 bg-light border border-1" style="border-radius: 0.25rem;" *ngIf="displayDescription">
+        <h6 class="mt-2">
+          Team Description:
+        </h6><hr>
+        <p class="m-2">
+          {{ displayDescription }}
+        </p>
+      </div>
+      <!-- Display User Posts -->
+      <div class="col mt-4 mb-4 bg-light border border-1" style="border-radius: 0.25rem;" *ngFor="let post of posts">        
+        <div class="d-flex align-items-start mt-3">
+          <h5>
+            <img [src]="post.profileImg" class="rounded-circle" style="width: 40px; height: 40px;">
+            <a class="ml-3" [routerLink]="['/other-users', post.authorEmail]">
+              {{ post.authorName }}
+            </a>
+            <div class="nav-item dropdown" style="position: absolute; top: 15px; right: 15px;">
+              <button class="btn nav-link p-0" id="dotsDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="width: 24px; height: 24px; background: transparent; border: none;">
+                <i class="fa-solid fa-ellipsis-vertical"></i>
+              </button>
+              <div class="dropdown-menu dropdown-menu-right" aria-labelledby="dotsDropdownMenuLink">
+                <a class="dropdown-item" (click)="post._id && deletePost(post._id)">Delete</a>
+              </div>
+            </div>
+          </h5>
+        </div>
+        <hr>
+        <p>{{ post.content }}</p>
+        <img class="post-image" *ngIf="post.image" [src]="post.image" alt="Post image">
+        <video class="post-video" *ngIf="post.video" [src]="post.video" controls></video>
+        <!-- Display the date -->
+        <small>
+          {{ post.createdAt | date:'medium' }}
+        </small>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <!-- div 2 right -->
+    </div>
+  </div>
+</div>
+
+<!-- Description Modal -->
+<div class="modal fade" id="descriptionModal" tabindex="-1" role="dialog" aria-labelledby="descriptionModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="descriptionModalLabel">Description</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <textarea class="form-control" rows="3" [(ngModel)]="description" placeholder=""></textarea>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <button id="postButton" type="button" class="btn btn-primary" (click)="addTeamDescription()">Done</button>
+      </div>
+    </div>
+  </div>
+</div>

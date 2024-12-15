@@ -1,0 +1,63 @@
+/* Default styles for larger screens */
+.dropdown-menu-checkbox {
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+/* Default styles for larger screens */
+.post {
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+}
+
+.post-image,
+.post-video {
+    max-width: 100%;
+    height: auto;
+    display: block;
+}
+
+.profile-container {
+    display: inline-block;
+    position: relative;
+}
+  
+.profile-img {
+    border-radius: 50%;
+    width: 200px;
+    height: 200px;
+}
+  
+@media (max-width: 1400px) {
+    .profile-img {
+      border-radius: 50%;
+      width: 70%;
+      max-width: 300;
+      min-width: 200px;
+      min-height: 200px;
+      height: auto;
+    }
+}
+
+@media (max-width: 915px) {
+    .post {
+        padding: 10px;
+    }
+
+    .d-flex.align-items-center {
+        flex-direction: column;
+        align-items: flex-start;
+        text-align: left;
+    }
+
+    .rounded-circle {
+        width: 40px;
+        height: 40px;
+        margin-right: 0;
+        margin-bottom: 8px;
+    }
+
+    .post h5 {
+        font-size: 1rem;
+    }
+}

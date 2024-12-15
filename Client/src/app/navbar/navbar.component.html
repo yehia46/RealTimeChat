@@ -1,0 +1,147 @@
+<nav class="navbar sticky-top navbar-expand-lg navbar-white bg-custom">
+    <div class="container-fluid">
+        <div class="d-flex justify-content-between align-items-center w-100">
+          <div class="col-2 d-flex align-items-center">
+            <a class="navbar-brand text-primary" [routerLink]="isLoggedIn ? 'home' : ''" style="font-weight: bolder;">TUSoccer</a>
+        </div>
+        <div class="col-6 col-md-4 d-flex align-items-center justify-content-center custom-search-input" *ngIf="isLoggedIn">
+            <form class="form-inline">
+                <div class="input-group">
+                  <input class="form-control rounded-pill custom-bg" type="search" placeholder="Search" aria-label="Search" (input)="onSearchInput($event)">
+                   <div class="input-group-append">
+                      <i class="fa fa-search custom-fa" aria-hidden="true"></i>
+                  </div>
+                </div>
+            </form>
+        </div>
+        <a class="nav-link" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        </a>
+        <div class="col-2 d-flex align-items-end justify-content-end" *ngIf="isLoggedIn">
+            <ul class="navbar-nav">
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <img [src]="profileImg" class="rounded-circle" style="width: 40px; height: 40px">
+                    </a>
+                    <div class="dropdown-menu custom-dd-menu" aria-labelledby="navbarDropdownMenuLink">
+                      <a class="dropdown-item" href="profile/user-details"><img [src]="profileImg" class="rounded-circle" style="width: 40px; height: 40px"> Profile</a>
+                      <div class="dropdown-divider"></div>
+                      <a class="dropdown-item" data-toggle="modal" data-target="#invitationModal" *ngIf="isPlayerLoggedIn" (click)="refreshInvitationsPlayer(currentUser.email)">
+                          <i class="fa fa-envelope"></i> Invitations
+                      </a>
+                      <a class="dropdown-item" data-toggle="modal" data-target="#invitationFeedModal" *ngIf="isTeamLoggedIn" (click)="refreshInvitationsTeam(currentUser.email)">
+                        <i class="fa fa-envelope"></i> Invitations Feedback
+                    </a>
+                      <div class="dropdown-divider"></div>
+                      <a class="dropdown-item" href="chat">
+                          <i class="fa-solid fa-comments"></i> Chat
+                      </a>
+                      <div class="dropdown-divider"></div>
+                      <a class="dropdown-item" (click)="logout()"><i class="fa fa-arrow-right-from-bracket"></i> Log Out</a>
+                    </div>
+                </li>
+            </ul>
+        </div>
+        </div>
+    </div>
+</nav>
+
+<!-- search result -->
+<div class="search-results mt-2 custom-search-results" *ngIf="searchResults.length > 0">
+    <ul class="list-group text-left">
+      <li class="list-group-item list-group-item-action custom-search-result" *ngFor="let result of searchResults">
+        <a (click)="onSearchResultClick(result)">
+          <img [src]="profileImg" alt="Account info" class="rounded-circle" style="width: 40px; height: 40px"> {{ result.name }}
+        </a>
+      </li>
+    </ul>
+</div>
+
+<!-- Invitation Modal -->
+<div class="modal fade" id="invitationModal" tabindex="-1" role="dialog" aria-labelledby="invitationModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="invitationModalLabel">Invitations</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div *ngFor="let invitation of invitations">
+            {{ teamName }} has invited you to join their team. <br> 
+            <ng-container *ngIf="invitation.status === 'pending'; else acceptedOrDeclined">
+              <button class="btn btn-primary m-2" (click)="acceptInvitation(invitation)">Accept</button>
+              <button class="btn btn-danger m-2" data-toggle="modal" data-target="#invitationRejectModal">Reject</button>
+            </ng-container>
+            <ng-template #acceptedOrDeclined>
+              Invitation {{ invitation.status }}.
+            </ng-template>
+            <hr *ngIf="invitations.length > 1">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+</div>
+
+<!-- Invitation Feedback Modal -->
+<div class="modal fade" id="invitationFeedModal" tabindex="-1" role="dialog" aria-labelledby="invitationFeedModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="invitationFeedModalLabel">Invitations Feed</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <ul class="invitation-list">
+          <li *ngFor="let feed of invitationsFeed" class="invitation-item">
+            <span class="status-label">{{ feed.status | titlecase }}:</span> {{ feed.count }}
+            <hr>
+            <ng-container *ngIf="feed.details">
+              <ng-container *ngFor="let detail of feed.details">
+                <br>
+                <span class="status-label">Email:</span> {{ detail.email }} <br>
+                <span class="status-label">Reason:</span> {{ detail.reason }}
+                <hr>
+              </ng-container>
+            </ng-container>                    
+          </li>
+        </ul>
+      </div>      
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Invitation Reject Modal -->
+<div class="modal fade" id="invitationRejectModal" tabindex="-1" role="dialog" aria-labelledby="invitationRejectModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="invitationRejectModalLabel">Write your reason</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="modal-body">
+          <textarea class="form-control" rows="3" [(ngModel)]="rejectReason" placeholder=""></textarea>
+        </div>
+        <div *ngIf="invitations.length > 0">
+          <ng-container *ngIf="invitations[invitations.length - 1].status === 'pending'; else acceptedOrDeclined">
+            <button class="btn btn-danger m-2" (click)="rejectInvitation(invitations[invitations.length - 1])">Reject</button>
+          </ng-container>
+          <ng-template #acceptedOrDeclined>
+            Invitation {{ invitations[invitations.length - 1].status }}.
+          </ng-template>
+        </div>        
+      </div>
+    </div>
+  </div>
+</div>

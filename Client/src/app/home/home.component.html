@@ -1,0 +1,176 @@
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-md-4">
+      <!-- div 1 left -->
+    </div>
+    <div class="col-md-4 col-12">
+      <!-- div 2 center -->
+      <div class="col mt-4 mb-4 bg-light border border-1" style="border-radius: 0.25rem;">
+        <div class="row">
+          <div class="col">
+            <div class="message m-3">
+              <input class="form-control" type="text" placeholder="Click to write a message..." readonly data-toggle="modal" data-target="#messageModal" />
+            </div>
+          </div>
+        </div>
+        <hr>
+        <div class="row">
+          <div class="col-6 d-flex justify-content-center">
+            <div class="input-icons-row m-3">
+              <!-- Video Input -->
+              <input type="file" #videoInput style="display: none;" accept="video/*" (change)="handleFileInput($event, 'video')">
+              <button class="btn btn-primary" data-toggle="modal" data-target="#videoModal">
+                <i class="fas fa-film"></i>
+              </button>
+            </div>
+          </div>
+          <hr>
+          <div class="col-6 d-flex justify-content-center">
+            <div class="input-icons-row m-3">
+              <!-- Image Input -->
+              <input type="file" #imageInput style="display: none;" accept="image/*" (change)="handleFileInput($event, 'image')">
+              <button class="btn btn-primary" data-toggle="modal" data-target="#imageModal">
+                <i class="fa-solid fa-image"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- suggestions section -->
+      <div class="col mt-4 mb-4 bg-light rounded p-3 border border-1" *ngIf="(currentUserT$ | async) !== null && suggestedPlayers.length > 0">
+        <div id="carouselExample" class="carousel slide" data-ride="carousel">
+          <div class="team-suggestions">
+            <h5>Suggestions for you</h5>
+            <hr>
+            <div class="carousel-inner">
+              <div class="carousel-item" *ngFor="let suggestion of suggestedPlayers; let i = index" [class.active]="i === 0">
+                <div class="card-deck">
+                  <div class="card">
+                    <div class="card-body">
+                      <ul class="list-group list-group-flush">
+                        <li class="list-group-item" *ngFor="let player of suggestion.suggestedPlayers">
+                          <div class="player-details">
+                            <span class="player-name">
+                              <a style="color: black;" [routerLink]="['/other-users', player.email]">
+                                <img [src]="player.profileImg || profileImg" class="rounded-circle" style="width: 40px; height: 40px; margin-right: 8px;">
+                                {{ player.name }}
+                              </a>
+                            </span>
+                            <br><br>
+                            <span class="player-position">Preferred position: {{ player.preferredPosition }}</span><br>
+                          </div>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <a class="carousel-control-prev" href="#carouselExample" role="button" data-slide="prev">
+              <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+              <i class="fa-solid fa-arrow-right"></i>
+              <span class="custom-carousel-arrow">❮</span>
+            </a>
+            <a class="carousel-control-next" href="#carouselExample" role="button" data-slide="next">
+              <span class="carousel-control-next-icon" aria-hidden="true"></span>
+              <i class="fa-solid fa-arrow-right"></i>
+              <span class="custom-carousel-arrow">❯</span>
+            </a>
+          </div>
+        </div>
+      </div>
+      <!-- start of the content div -->
+      <div class="col mt-4 mb-4 bg-light border border-1" style="border-radius: 0.25rem;" *ngFor="let post of posts">        
+        <div class="d-flex align-items-start mt-3">
+          <h5>
+            <img [src]="post.profileImg" class="rounded-circle" style="width: 40px; height: 40px;">
+            <a class="ml-3" [routerLink]="['/other-users', post.authorEmail]">{{ post.authorName }}</a>
+          </h5>
+        </div>
+        <hr>
+        <p>{{ post.content }}</p>
+        <img class="post-image" *ngIf="post.image" [src]="post.image" alt="Post image">
+        <video class="post-video" *ngIf="post.video" [src]="post.video" controls></video>
+        <!-- Display the date -->
+        <p *ngIf="post.authorType == 'Team'">
+          By: Team
+        </p>
+        <p *ngIf="post.authorType == 'Player'">
+          By: Player
+        </p>
+        <small>
+          {{ post.createdAt | date:'medium' }} 
+        </small>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <!-- div 3 right -->
+    </div>
+  </div>
+</div>
+
+<!-- The Message Upload Modal -->
+<div class="modal fade" id="messageModal" tabindex="-1" role="dialog" aria-labelledby="messageModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="messageModalLabel">New Post</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <textarea class="form-control" rows="3" [(ngModel)]="message" placeholder=""></textarea>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <button id="postButton" type="button" class="btn btn-primary" (click)="postContent()">Post</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- The Image Upload Modal -->
+<div class="modal fade" id="imageModal" tabindex="-1" role="dialog" aria-labelledby="imageModalLabel" aria-hidden="true" (hidden.bs.modal)="clearFileInputs()">  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="imageModalLabel">Upload Image</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <textarea class="form-control" rows="3" [(ngModel)]="message" placeholder=""></textarea><br>
+        <input type="file" #imageModalInput (change)="handleFileInput($event, 'image')" /><br>
+        <small *ngIf="imageError" class="text-danger">{{ imageError }}</small>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary" (click)="postContent()">Post</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- The Video Upload Modal -->
+<div class="modal fade" id="videoModal" tabindex="-1" role="dialog" aria-labelledby="videoModalLabel" aria-hidden="true" (hidden.bs.modal)="clearFileInputs()">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="videoModalLabel">Upload Video</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <textarea class="form-control" rows="3" [(ngModel)]="message" placeholder=""></textarea><br>
+        <input type="file" #videoModalInput (change)="handleFileInput($event, 'video')" /><br>
+        <small *ngIf="videoError" class="text-danger">{{ videoError }}</small>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary" (click)="postContent()">Post</button>
+      </div>
+    </div>
+  </div>
+</div>

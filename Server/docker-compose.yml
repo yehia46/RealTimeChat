@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./ 
+      dockerfile: Dockerfile  
+    container_name: my-backend
+    environment:
+      - MONGO_URI=mongodb://mongodb:27017/TeamUpSoccer  
+    ports:
+      - "3000:3000"  
+    depends_on:
+      - mongodb  
+    networks:
+      - my-network
+    restart: always  
+
+  mongodb:
+    image: mongo:latest  
+    container_name: mongodb
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: rootuser
+      MONGO_INITDB_ROOT_PASSWORD: rootpassword
+      MONGO_INITDB_DATABASE: mydatabase
+    ports:
+      - "27017:27017" 
+    volumes:
+      - mongodb_data:/data/db 
+    networks:
+      - my-network
+    restart: always  
+
+volumes:
+  mongodb_data:  
+    driver: local
+
+networks:
+  my-network: 
+    driver: bridge

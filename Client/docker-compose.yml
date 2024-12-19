@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  frontend:
+    build:
+      context: ./  
+      dockerfile: Dockerfile 
+    container_name: my-angular-app
+    ports:
+      - "80:80" 
+    networks:
+      - my-network
+    restart: always  
+
+networks:
+  my-network:
+    driver: bridge
